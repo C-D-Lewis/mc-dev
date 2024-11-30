@@ -1,0 +1,7 @@
+name: TodoList
+version: 1.0.0
+main: uk.me.chrislewis.todolist.TodoList
+description: A simple plugin to manage player TODOs
+author: Chris Lewis
+website: https://papermc.io
+api-version: '1.21.1'
