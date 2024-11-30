@@ -1,0 +1,7 @@
+name: TestPlugin
+version: 1.0.0
+main: uk.me.chrislewis.testplugin.TestPlugin
+description: An example plugin to learn the basics
+author: ChrisLewis
+website: https://papermc.io
+api-version: '1.21.1'
