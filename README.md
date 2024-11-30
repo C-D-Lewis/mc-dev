@@ -24,4 +24,4 @@ Output is in `app/build/libs`.
 
 ## Projects
 
-* `test` - Test plugin to learn the basics.
+* `test-plugin` - Test plugin to learn the basics.
