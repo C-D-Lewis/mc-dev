@@ -18,7 +18,7 @@ java {
 }
 
 tasks.jar {
-  manifest {
-    attributes["paperweight-mappings-namespace"] = "mojang"
-  }
+    manifest {
+        attributes["paperweight-mappings-namespace"] = "mojang"
+    }
 }
