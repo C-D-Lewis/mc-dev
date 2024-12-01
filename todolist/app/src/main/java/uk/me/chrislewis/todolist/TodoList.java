@@ -12,7 +12,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 
 public class TodoList extends JavaPlugin implements Listener {
 
@@ -43,7 +42,7 @@ public class TodoList extends JavaPlugin implements Listener {
   
   @EventHandler
   public void onPlayerJoin(PlayerJoinEvent event) {
-    data.sendPlayerTodos(event.getPlayer(), true);
+    sendPlayerTodos(event.getPlayer(), true);
   }
   
   @Override
@@ -71,18 +70,18 @@ public class TodoList extends JavaPlugin implements Listener {
       if (args.length < 2) return false;
       
       // All remaining tokens are the todo text
-      String newTodo = "";
-      for (int i = 1; i < args.length; i ++) newTodo += (" " + args[i]);
+      String newTodo = args[1];
+      for (int i = 2; i < args.length; i ++) newTodo += (" " + args[i]);
       
       data.addPlayerTodo(playerName, newTodo);
       data.save(dataFile, logger);
-      sender.sendMessage(Component.text("Added new todo").color(TextColor.color(128, 128, 128)));
+      sender.sendMessage(Component.text("Added new todo \"" + newTodo + "\"").color(Colors.GREY));
       return true;
     }
     
     // List player's list
     if (subcmd.equals("list")) {
-      data.sendPlayerTodos((Player) sender, false);
+      sendPlayerTodos((Player) sender, false);
       return true;
     }
 
@@ -113,13 +112,14 @@ public class TodoList extends JavaPlugin implements Listener {
     String playerName = player.getName();
     ArrayList<String> items = data.getPlayerTodos(playerName);
     if (items.size() == 0) {
-      if (!isReminder) player.sendMessage("You have no todos yet");
+      if (!isReminder) player.sendMessage(Component.text("You have no todos yet").color(Colors.GREY));
       return;
     }
 
-    player.sendMessage("======== " + playerName + "'s todo list ========");
+    player.sendMessage(Component.text("======== Your todo list ========").color(Colors.GREY));
     for (int i = 0; i < items.size(); i ++) {
-      player.sendMessage(i + ": " + items.get(i));
+      player.sendMessage("  " + i + ": " + items.get(i));
     }
+    player.sendMessage(Component.text("================================").color(Colors.GREY));
   }
 }

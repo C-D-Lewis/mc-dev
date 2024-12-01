@@ -11,9 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
-
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.TextColor;
 
 /**
 * Data saved to disk
@@ -61,12 +59,13 @@ public class Data implements Serializable {
     String playerName = player.getName();
     ArrayList<String> items = getPlayerTodos(playerName);
     if (index < 0 || index >= items.size()) {
-      player.sendMessage(Component.text("Invalid index: " + index).color(TextColor.color(255, 0, 0)));
+      player.sendMessage(Component.text("Invalid index: " + index).color(Colors.RED));
       return;
     }
 
+    String removed = items.get(index);
     items.remove(index);
-    player.sendMessage("Deleted todo");
+    player.sendMessage(Component.text("Deleted todo \"" + removed + "\"").color(Colors.GREY));
   }
   
   /**
