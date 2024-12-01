@@ -10,7 +10,6 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Logger;
-
 import org.bukkit.entity.Player;
 
 /**
@@ -27,7 +26,7 @@ public class Data implements Serializable {
    * @param playerName Name of the player.
    * @return List of their todos.
    */
-  public ArrayList<String> getTodos(final String playerName) {
+  public ArrayList<String> getPlayerTodos (final String playerName) {
     ArrayList<String> items = todos.get(playerName);
     if (items == null) return new ArrayList<>();
 
@@ -40,12 +39,13 @@ public class Data implements Serializable {
    * @param playerName Player to add todo for.
    * @param item New todo to add.
    */
-  public void addTodo(final String playerName, final String item) {
+  public void addPlayerTodo (final String playerName, final String item) {
+    // Init empty list for new player
     if (todos.get(playerName) == null) {
       todos.put(playerName, new ArrayList<>());
     }
 
-    getTodos(playerName).add(item);
+    getPlayerTodos(playerName).add(item);
   }
 
   /**
@@ -53,14 +53,12 @@ public class Data implements Serializable {
    *
    * @param player Player to use.
    */
-  public void sendPlayerTodos(final Player player, final Boolean isReminder) {
+  public void sendPlayerTodos (final Player player, final Boolean isReminder) {
     String playerName = player.getName();
 
-    ArrayList<String> items = getTodos(playerName);
+    ArrayList<String> items = getPlayerTodos(playerName);
     if (items.size() == 0) {
-      if (!isReminder) {
-        player.sendMessage("You have no todos yet");
-      }
+      if (!isReminder) player.sendMessage("You have no todos yet");
       return;
     }
 
@@ -75,7 +73,7 @@ public class Data implements Serializable {
   *
   * @param dataFile Data File to save to.
   */
-  public void saveData(final File dataFile, final Logger logger) {
+  public void save (final File dataFile, final Logger logger) {
     try {
       FileOutputStream fos = new FileOutputStream(dataFile);
       ObjectOutputStream oos = new ObjectOutputStream(fos);
@@ -93,13 +91,13 @@ public class Data implements Serializable {
   *
   * @param dataFile Data File to load from.
   */
-  public void loadData(final File dataFile, final Logger logger) {
+  public void load (final File dataFile, final Logger logger) {
     try {
       FileInputStream fis = new FileInputStream(dataFile);
       ObjectInputStream ois = new ObjectInputStream(fis);
-      Data loaded = (Data) ois.readObject();
-
+      
       // Restore data
+      Data loaded = (Data) ois.readObject();
       todos = loaded.todos;
 
       ois.close();
@@ -108,5 +106,4 @@ public class Data implements Serializable {
       e.printStackTrace();
     }
   }
-  
 }

@@ -37,7 +37,7 @@ public class TodoList extends JavaPlugin implements Listener {
     // TODO: Debuggable file format
     dataFile = new File(dataFolder, "data");
     data = new Data();
-    data.loadData(dataFile, logger);
+    data.load(dataFile, logger);
   }
   
   @EventHandler
@@ -74,9 +74,9 @@ public class TodoList extends JavaPlugin implements Listener {
       String item = "";
       for (int i = 1; i < args.length; i ++) item += (" " + args[i]);
       
-      data.addTodo(playerName, item);
-      data.saveData(dataFile, logger);
-      sender.sendMessage("Todo added");
+      data.addPlayerTodo(playerName, item);
+      data.save(dataFile, logger);
+      sender.sendMessage("Added new todo");
       return true;
     }
     
