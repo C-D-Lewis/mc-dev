@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+
 /**
 * Data saved to disk
 */
@@ -49,23 +52,21 @@ public class Data implements Serializable {
   }
 
   /**
-   * Send a player their todo list.
+   * Delete a player's todo.
    *
    * @param player Player to use.
+   * @param index Index to use.
    */
-  public void sendPlayerTodos (final Player player, final Boolean isReminder) {
+  public void deletePlayerTodo (final Player player, final int index) {
     String playerName = player.getName();
-
     ArrayList<String> items = getPlayerTodos(playerName);
-    if (items.size() == 0) {
-      if (!isReminder) player.sendMessage("You have no todos yet");
+    if (index < 0 || index >= items.size()) {
+      player.sendMessage(Component.text("Invalid index: " + index).color(TextColor.color(255, 0, 0)));
       return;
     }
 
-    player.sendMessage("======== " + playerName + "'s todo list ========");
-    for (int i = 0; i < items.size(); i ++) {
-      player.sendMessage((i + 1) + ": " + items.get(i));
-    }
+    items.remove(index);
+    player.sendMessage("Deleted todo");
   }
   
   /**
