@@ -5,3 +5,7 @@ description: A simple plugin to manage player TODOs
 author: Chris Lewis
 website: https://papermc.io
 api-version: '1.21.1'
+commands:
+  todo:
+    description: Use the todolist plugin
+    usage: /todo help
