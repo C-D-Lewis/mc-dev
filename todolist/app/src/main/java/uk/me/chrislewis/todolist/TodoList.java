@@ -17,7 +17,7 @@ public class TodoList extends JavaPlugin implements Listener {
 
   private Logger logger;
   private Data data;
-  private File dataFile;
+  private File dataFolder;
   
   @Override
   public void onEnable() {
@@ -25,7 +25,7 @@ public class TodoList extends JavaPlugin implements Listener {
     logger = getLogger();
 
     // Init plugin folder
-    File dataFolder = getDataFolder();
+    dataFolder = getDataFolder();
     if (!dataFolder.exists()) {
       if (!dataFolder.mkdirs()) {
         logger.severe("Could not create plugin directory!");
@@ -34,10 +34,8 @@ public class TodoList extends JavaPlugin implements Listener {
       }
     }
 
-    // TODO: Debuggable file format
-    dataFile = new File(dataFolder, "data");
     data = new Data();
-    data.load(dataFile, logger);
+    data.load(dataFolder, logger);
   }
   
   @EventHandler
@@ -48,11 +46,11 @@ public class TodoList extends JavaPlugin implements Listener {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (args.length == 0 || args[0].equals("help")) {
-      sender.sendMessage("================ todolist help ================");
-      sender.sendMessage("  /todo help - show this help");
-      sender.sendMessage("  /todo add ... - Add a new todo");
-      sender.sendMessage("  /todo list - list your todos");
-      sender.sendMessage("  /todo delete [index] - Delete a todo by index");
+      sender.sendMessage(Component.text("================ todolist help ==============").color(Colors.GREY));
+      sender.sendMessage(Component.text("  /todo help - show this help").color(Colors.GREY));
+      sender.sendMessage(Component.text("  /todo add ... - Add a new todo").color(Colors.GREY));
+      sender.sendMessage(Component.text("  /todo list - list your todos").color(Colors.GREY));
+      sender.sendMessage(Component.text("  /todo delete [index] - Delete a todo by index").color(Colors.GREY));
       return true;
     }
 
@@ -63,6 +61,7 @@ public class TodoList extends JavaPlugin implements Listener {
       return true;
     }
     
+    Player player = (Player) sender;
     String playerName = sender.getName();
     
     // Add a new item to a player's list
@@ -71,17 +70,19 @@ public class TodoList extends JavaPlugin implements Listener {
       
       // All remaining tokens are the todo text
       String newTodo = args[1];
-      for (int i = 2; i < args.length; i ++) newTodo += (" " + args[i]);
+      for (int i = 2; i < args.length; i ++) {
+        newTodo += (" " + args[i]);
+      }
       
       data.addPlayerTodo(playerName, newTodo);
-      data.save(dataFile, logger);
-      sender.sendMessage(Component.text("Added new todo \"" + newTodo + "\"").color(Colors.GREY));
+      data.save(dataFolder, player, logger);
+      sender.sendMessage(Component.text("Added \"" + newTodo + "\"").color(Colors.GREEN));
       return true;
     }
     
     // List player's list
     if (subcmd.equals("list")) {
-      sendPlayerTodos((Player) sender, false);
+      sendPlayerTodos(player, false);
       return true;
     }
 
@@ -91,8 +92,11 @@ public class TodoList extends JavaPlugin implements Listener {
 
       try {
         int index = Integer.parseInt(args[1]) - 1;
-        data.deletePlayerTodo((Player) sender, index);
-        data.save(dataFile, logger);
+        String removed = data.deletePlayerTodo(player, index);
+        if (removed != null) {
+          data.save(dataFolder, player, logger);
+          player.sendMessage(Component.text("Deleted \"" + removed + "\"").color(Colors.GREEN));
+        }
         return true;
       } catch (Exception e) {
         e.printStackTrace();
@@ -111,15 +115,16 @@ public class TodoList extends JavaPlugin implements Listener {
   public void sendPlayerTodos (final Player player, final Boolean isReminder) {
     String playerName = player.getName();
     ArrayList<String> items = data.getPlayerTodos(playerName);
+
     if (items.size() == 0) {
       if (!isReminder) player.sendMessage(Component.text("You have no todos yet").color(Colors.GREY));
       return;
     }
 
-    player.sendMessage(Component.text("\n================= Your todo list ================").color(Colors.GREY));
+    player.sendMessage(Component.text("\n=============== Your todo list ==============").color(Colors.GREY));
     for (int i = 0; i < items.size(); i ++) {
       player.sendMessage("  " + (i + 1) + ": " + items.get(i));
     }
-    player.sendMessage(Component.text("==============================================").color(Colors.GREY));
+    player.sendMessage(Component.text("==========================================").color(Colors.GREY));
   }
 }

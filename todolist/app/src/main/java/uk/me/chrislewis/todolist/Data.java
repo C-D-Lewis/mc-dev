@@ -1,14 +1,13 @@
 package uk.me.chrislewis.todolist;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.UUID;
 import java.util.logging.Logger;
 import org.bukkit.entity.Player;
 import net.kyori.adventure.text.Component;
@@ -16,8 +15,7 @@ import net.kyori.adventure.text.Component;
 /**
 * Data saved to disk
 */
-public class Data implements Serializable {
-  private static final long serialVersionUID = 1L;
+public class Data {
   
   private HashMap<String, ArrayList<String>> todos = new HashMap<>();
 
@@ -55,32 +53,45 @@ public class Data implements Serializable {
    * @param player Player to use.
    * @param index Index to use.
    */
-  public void deletePlayerTodo (final Player player, final int index) {
+  public String deletePlayerTodo (final Player player, final int index) {
     String playerName = player.getName();
     ArrayList<String> items = getPlayerTodos(playerName);
     if (index < 0 || index >= items.size()) {
       player.sendMessage(Component.text("Invalid index").color(Colors.RED));
-      return;
+      return null;
     }
 
     String removed = items.get(index);
     items.remove(index);
-    player.sendMessage(Component.text("Deleted todo \"" + removed + "\"").color(Colors.GREY));
+    return removed;
   }
   
   /**
   * Save data to the file.
+  * One file per player (because f Java and any kind of JSON/YAML loading).
+  * First line is name.
+  * One line per todo.
   *
-  * @param dataFile Data File to save to.
+  * @param dataFolder Data File to save to.
   */
-  public void save (final File dataFile, final Logger logger) {
+  public void save (final File dataFolder, final Player player, final Logger logger) {
     try {
-      FileOutputStream fos = new FileOutputStream(dataFile);
-      ObjectOutputStream oos = new ObjectOutputStream(fos);
-      oos.writeObject(this);
-      oos.close();
+      String name = player.getName();
+      UUID uuid = player.getUniqueId();
+      String filename = dataFolder.getAbsolutePath() + "/" + uuid.toString() + ".txt";
+
+      FileWriter fw = new FileWriter(filename);
+      fw.write(name + '\n');
+
+      ArrayList<String> items = todos.get(name);
+      if (items != null) {
+        for(String i : items) {
+          fw.write(i + "\n");
+        }
+      }
       
-      logger.info("Saved data file");
+      fw.close();
+      logger.info("Saved data file for " + name);
     } catch (IOException e) {
       e.printStackTrace();
     }
@@ -89,19 +100,36 @@ public class Data implements Serializable {
   /**
   * Load data from the file.
   *
-  * @param dataFile Data File to load from.
+  * @param dataFolder Data File to load from.
   */
-  public void load (final File dataFile, final Logger logger) {
-    try {
-      FileInputStream fis = new FileInputStream(dataFile);
-      ObjectInputStream ois = new ObjectInputStream(fis);
-      
-      // Restore data
-      Data loaded = (Data) ois.readObject();
-      todos = loaded.todos;
+  public void load (final File dataFolder, final Logger logger) {
+    File[] files = dataFolder.listFiles();
 
-      ois.close();
-      logger.info("Loaded data file");
+    try {
+      for (File file : files) {
+        String fileName = file.getName();
+        if (!file.isFile()) {
+          logger.warning("Ignoring non-file " + fileName);
+          continue;
+        }
+
+        // Name is player name
+        FileReader fr = new FileReader(file.getAbsolutePath());
+        BufferedReader br = new BufferedReader(fr);
+        String playerName = br.readLine();
+
+        ArrayList<String> items = new ArrayList<>();
+        String line = "";
+        while ((line = br.readLine()) != null) {
+          items.add(line);
+        }
+
+        // Restore data
+        todos.put(playerName, items);
+
+        br.close();
+        logger.info("Loaded data file " + fileName);
+      }
     } catch (Exception e) {
       e.printStackTrace();
     }
