@@ -48,7 +48,7 @@ public class TodoList extends JavaPlugin implements Listener {
   @Override
   public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
     if (args.length == 0 || args[0].equals("help")) {
-      sender.sendMessage("======== todolist help ========");
+      sender.sendMessage("================ todolist help ================");
       sender.sendMessage("  /todo help - show this help");
       sender.sendMessage("  /todo add ... - Add a new todo");
       sender.sendMessage("  /todo list - list your todos");
@@ -90,7 +90,7 @@ public class TodoList extends JavaPlugin implements Listener {
       if (args.length < 2) return false;
 
       try {
-        int index = Integer.parseInt(args[1]);
+        int index = Integer.parseInt(args[1]) - 1;
         data.deletePlayerTodo((Player) sender, index);
         data.save(dataFile, logger);
         return true;
@@ -116,10 +116,10 @@ public class TodoList extends JavaPlugin implements Listener {
       return;
     }
 
-    player.sendMessage(Component.text("======== Your todo list ========").color(Colors.GREY));
+    player.sendMessage(Component.text("\n================= Your todo list ================").color(Colors.GREY));
     for (int i = 0; i < items.size(); i ++) {
-      player.sendMessage("  " + i + ": " + items.get(i));
+      player.sendMessage("  " + (i + 1) + ": " + items.get(i));
     }
-    player.sendMessage(Component.text("================================").color(Colors.GREY));
+    player.sendMessage(Component.text("==============================================").color(Colors.GREY));
   }
 }

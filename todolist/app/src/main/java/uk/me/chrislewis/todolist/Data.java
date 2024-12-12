@@ -59,7 +59,7 @@ public class Data implements Serializable {
     String playerName = player.getName();
     ArrayList<String> items = getPlayerTodos(playerName);
     if (index < 0 || index >= items.size()) {
-      player.sendMessage(Component.text("Invalid index: " + index).color(Colors.RED));
+      player.sendMessage(Component.text("Invalid index").color(Colors.RED));
       return;
     }
 
